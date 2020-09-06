@@ -1,17 +1,60 @@
 spring.output.ansi.enabled: always
+spring:
+  application:
+    name: zuul-server
+
+
+endpoints:
+  restart:
+    enabled: true
+  shutdown:
+    enabled: true
+  health:
+    sensitive: false
+
 zuul:
+  host:
+    connect-timeout-millis: 5000000
+    socket-timeout-millis: 5000000
   sensitiveHeaders:
   routes:
     auth:
-      url: http://localhost:8090
+      path: /auth/**
+      serviceId: auth-service
+      strip-prefix: true
     users:
-      url: http://localhost:8091
+      path: /users/**
+      serviceId: user-service
+      strip-prefix: true
   debug:
     request: true
 
+eureka:
+  instance:
+    hostname: localhost
+    preferIpAddress: true
+  client:
+    registerWithEureka: false
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:8661/eureka
+
+
+auth-service:
+  ribbon:
+    listOfServers: localhost:8090
+user-service:
+  ribbon:
+    listOfServers: localhost:8091
 ribbon:
+  ReadTimeout: 60000
   eureka:
     enabled: false
+  retryable: true
+  MaxAutoRetries: 0
+  MaxAutoRetriesNextServer: 1
+  OkToRetryOnAllOperations: true
+  ConnectTimeout: 30000
 
 server:
   port: 8080
